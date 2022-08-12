@@ -28,7 +28,7 @@ rowState.subscribe((value) => {
 });
 
 export const layoutState = writable(
-	browser ? localStorage.getItem('layout') ?? 'qwerty' : 'qwerty'
+	browser ? localStorage.getItem('layout') ?? 'azerty' : 'azerty'
 );
 layoutState.subscribe((value) => {
 	if (browser) localStorage.setItem('layout', value);
@@ -49,6 +49,8 @@ const defaultScoreHistory = {
 	4: 0,
 	5: 0,
 	6: 0,
+	7: 0,
+	8: 0,
 	X: 0
 };
 export const scoreHistoryState = writable(

@@ -66,7 +66,9 @@
 		const rand = mulberry32(seed());
 		shuffleArray(randomPool, rand);
 
-		const randomWord = randomPool[daysSinceEpoch % randomPool.length];
+		// const randomWord = randomPool[daysSinceEpoch % randomPool.length];
+		const randomWord = "retraite"
+		console.log(randomWord)
 		return {
 			props: {
 				allWords: allWords.map((x) => x.toUpperCase()),
@@ -93,13 +95,13 @@
 	export let allWords;
 	export let randomWord;
 
-	const arrayOf5 = new Array(5);
-	const arrayOf6 = new Array(6);
+	const arrayOf5 = new Array(8);
+	const arrayOf6 = new Array(8);
 	let rows = [];
 	let inputLetters = [];
 	let combiningBuffer = '';
 	let keyRows = [];
-	let azertyLayout = false;
+	let azertyLayout = true;
 
 	let inError = false;
 	let lastErrorTimer;
@@ -167,7 +169,7 @@
 		);
 	});
 
-	$: layoutState.set(azertyLayout ? 'azerty' : 'qwerty');
+	$: layoutState.set(azertyLayout ? 'azerty' : 'azerty');
 
 	function updateDate() {
 		const nowDate = new Date();
@@ -344,7 +346,7 @@
 		}
 
 		// Already done!
-		if (rows.length == 6 || inputLetters == null) return;
+		if (rows.length == 8 || inputLetters == null) return;
 
 		if ((key == 'Backspace' || key == 'Delete' || key == '\u232b') && inputLetters.length != 0) {
 			inputLetters.pop();
@@ -352,7 +354,7 @@
 			return;
 		}
 
-		if (inputLetters.length == 5 && (key == 'Enter' || key == 'NumpadEnter' || key == '\u23ce')) {
+		if (inputLetters.length == 8 && (key == 'Enter' || key == 'NumpadEnter' || key == '\u23ce')) {
 			const inputWord = inputLetters.join('');
 
 			if (!allWords.includes(inputWord)) {
@@ -366,13 +368,13 @@
 				return;
 			}
 
-			const mutatedRow = Array(5);
+			const mutatedRow = Array(8);
 			const toCheck = [];
 			const normalizedRandomWord = neutralizeAccents(randomWord);
 			const normalizedRandomWordLetters = [...normalizedRandomWord];
 
 			// take care of matches first
-			for (let i = 0; i < 5; i++) {
+			for (let i = 0; i < 8; i++) {
 				const normalizedInputLetter = neutralizeAccents(inputWord[i]);
 				const rowLetter = { glyph: inputLetters[i], attemptedGlyph: inputLetters[i] };
 				if (normalizedInputLetter == normalizedRandomWord[i]) {
@@ -391,7 +393,7 @@
 				const rowLetter = { glyph: inputLetters[i], attemptedGlyph: inputLetters[i] };
 				if (normalizedRandomWordLetters.includes(normalizedInputLetter)) {
 					rowLetter.class = 'in-word';
-					for (let i = 0; i < 5; i++) {
+					for (let i = 0; i < 8; i++) {
 						if (normalizedRandomWordLetters[i] == normalizedInputLetter) {
 							rowLetter.glyph = randomWord[i];
 							normalizedRandomWordLetters[i] = '\0';
@@ -408,7 +410,7 @@
 
 			if (toCheck.length > 0) {
 				inputLetters = [];
-				if (rows.length == 6) {
+				if (rows.length == 8) {
 					progressState.set('lost');
 					scoreHistory.streak = 0;
 					scoreHistory['X']++;
@@ -429,6 +431,10 @@
 					comment = 'Pas mal!';
 				} else if (rows.length == 6) {
 					comment = 'De justesse!';
+				} else if (rows.length == 7) {
+					comment = 'Pfiou!';
+				} else if (rows.length == 8) {
+					comment = 'C\'était chaud!';
 				}
 				if (comment != null) {
 					resultsHidden = true;
@@ -451,7 +457,7 @@
 			return;
 		}
 
-		if (inputLetters.length == 5 || !RegExp(/^\p{L}{1}$/, 'u').test(key)) return;
+		if (inputLetters.length == 8 || !RegExp(/^\p{L}{1}$/, 'u').test(key)) return;
 
 		if (combiningBuffer.length > 0) {
 			const neutralizedKey = neutralizeAccents(key).toUpperCase();
@@ -479,7 +485,7 @@
 			)
 			.join('\n');
 		navigator.clipboard.writeText(
-			`MOTDLE ${getDayNumber()} - ${progress == 'lost' ? 'X' : rows.length}/6\n\n${tiles}`
+			`KATDLE ${getDayNumber()} - ${progress == 'lost' ? 'X' : rows.length}/8\n\n${tiles}`
 		);
 		shareButtonText = '✅ Copié!';
 	}
@@ -499,18 +505,12 @@
 
 <container>
 	<header>
-		<banner>MOTDLE {getDayNumber()}</banner>
+		<banner>KATDLE</banner>
 		
 		{#if progress != 'playing' && !showHelp && !showSettings}
 			<button class="toolbar" transition:fade={{ duration: 100 }} on:click={toggleResults}
 				>🥇</button
 			>
-		{/if}
-		{#if (resultsHidden || progress == 'playing') && !showSettings}
-			<button class="toolbar" on:click={toggleHelp}>?</button>
-		{/if}
-		{#if (resultsHidden || progress == 'playing') && !showHelp}
-			<button class="toolbar" on:click={toggleSettings}>⚙️</button>
 		{/if}
 	</header>
 
@@ -570,15 +570,9 @@
 						>Définition de «{randomWord.toLowerCase()}» sur wiktionnaire</a
 					>
 				</p>
-				<button class="share" on:click={generateShareText}>{shareButtonText}</button>
-				<h4>
-					⭐ {scoreHistory.streak} mot{scoreHistory.streak == 1 ? '' : 's'} découvert{scoreHistory.streak ==
-					1
-						? ''
-						: 's'} de suite
-				</h4>
-				<h4>Prochain mot dans</h4>
-				<h2 class="timer">{timeLeft}</h2>
+
+				<h1>Il est temps de se préparer !</h1>
+				<h1>9 mois ça passe vite :)</h1> 
 			</result-text>
 		</results>
 	{/if}
@@ -600,57 +594,13 @@
 		</results>
 	{/if}
 
-	{#if showHelp}
-		<shadow on:click={toggleHelp} transition:fade={{ duration: 200 }}>&nbsp;</shadow>
-		<help in:fly={{ y: 50, duration: 500 }} out:fly={{ duration: 200 }}>
-			<help-content>
-				<p>
-					<strong>MOTDLE</strong> est une adaptation française de
-					<a href="https://www.powerlanguage.co.uk/wordle/">Wordle</a>.
-				</p>
-				<p>
-					Wordle a été créé par <a href="https://www.powerlanguage.co.uk/"
-						>Josh Wardle (powerlanguage)</a
-					>.
-				</p>
-				<h4>Comment jouer?</h4>
-				<p>Découvrez le mot secret du jour en 6 essais ou moins!</p>
-				<p>
-					Chaque essai doit être un mot de 5 lettres correctement orthographié, incluant les
-					accents.
-				</p>
-				<p>Appuyez sur la touche Entrée, ou cliquez sur ⏎ pour confirmer un essai.</p>
-				<h4>Code de couleurs</h4>
-				<p>🟩 : cette lettre est dans le mot, et elle est au bon endroit.</p>
-				<p>🟨 : cette lettre est dans le mot, mais pas à cet endroit.</p>
-				<p>⬛ : cette lettre n'est pas dans le mot, inutile de réessayer.</p>
-				<h4>Questions/commentaires?</h4>
-				<p>Contactez <a href="https://twitter.com/renaudbedard">@renaudbedard</a> sur Twitter.</p>
-			</help-content>
-		</help>
-	{/if}
-
-	{#if showSettings}
-		<shadow on:click={toggleSettings} transition:fade={{ duration: 200 }}>&nbsp;</shadow>
-		<settings in:fly={{ y: 50, duration: 500 }} out:fly={{ duration: 200 }}>
-			<settings-content>
-				<p><strong>Disposition du clavier</strong></p>
-				<p>
-					<span class="clickable" on:click={() => (azertyLayout = false)}>QWERTY</span><Switch
-						bind:checked={azertyLayout}
-					/><span class="clickable" on:click={() => (azertyLayout = true)}>AZERTY</span>
-				</p>
-			</settings-content>
-		</settings>
-	{/if}
-
 	<keyboard>
 		{#each keyRows as row}
 			<row>
 				{#each row as key}
 					<button
 						disabled={isKeyDisabled(key)}
-						class={key.glyph == '\u23ce' && progress == 'playing' && inputLetters.length == 5
+						class={key.glyph == '\u23ce' && progress == 'playing' && inputLetters.length == 8
 							? 'highlight'
 							: key.class}
 						id="key_{key.glyph}"
@@ -868,7 +818,7 @@
 
 	game-board row {
 		display: grid;
-		grid-template-columns: repeat(5, 1fr);
+		grid-template-columns: repeat(8, 1fr);
 		gap: 5px;
 	}
 
